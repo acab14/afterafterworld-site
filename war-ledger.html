@@ -1,0 +1,812 @@
+<title>The War Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --ink:#0e0c15;
+    --panel:#171420;
+    --panel-2:#1d1929;
+    --line:#2b2537;
+    --line-soft:#221d30;
+    --text:#eae5d8;
+    --muted:#a89fba;
+    --faint:#7a7190;
+    --gold:#e2b25c;
+    --gold-dim:#b98f47;
+    --ok:#5fd3b3;
+    --warn:#e0a33e;
+    --bad:#e0564f;
+    --odd:#a98fe3;
+    --serif:'IM Fell English',Georgia,'Times New Roman',serif;
+    --serif-sc:'IM Fell English SC',Georgia,'Times New Roman',serif;
+    --sans:'Alegreya Sans','Segoe UI',Verdana,sans-serif;
+    --mono:'IBM Plex Mono','Consolas','Courier New',monospace;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.55;
+    margin:0;
+    padding:0 20px 64px;
+  }
+  .page{max-width:1120px;margin:0 auto}
+  a{color:var(--gold);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* ---------- masthead ---------- */
+  .masthead{text-align:center;padding:56px 0 8px}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.28em;
+    color:var(--faint);text-transform:uppercase;
+  }
+  .masthead h1{
+    font-family:var(--serif-sc);font-weight:400;
+    font-size:clamp(44px,7vw,76px);line-height:1.05;
+    margin:10px 0 6px;color:var(--text);text-wrap:balance;
+  }
+  .epigraph{
+    font-family:var(--serif);font-style:italic;font-size:19px;
+    color:var(--muted);max-width:34em;margin:0 auto;
+  }
+
+  /* ---------- clock ---------- */
+  .clock{
+    margin:36px auto 8px;padding:28px 24px 24px;max-width:640px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .clock-num{
+    font-family:var(--mono);font-weight:600;
+    font-size:clamp(72px,12vw,120px);line-height:1;
+    color:var(--gold);text-align:center;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 34px rgba(226,178,92,.28);
+    animation:emberglow 4.5s ease-in-out infinite;
+  }
+  @keyframes emberglow{
+    0%,100%{text-shadow:0 0 34px rgba(226,178,92,.28)}
+    50%{text-shadow:0 0 52px rgba(226,178,92,.45)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .clock-num{animation:none}
+    html{scroll-behavior:auto}
+  }
+  .clock-label{
+    font-family:var(--mono);font-size:14px;letter-spacing:.42em;
+    text-transform:uppercase;color:var(--gold-dim);
+    text-align:center;margin-top:6px;
+  }
+  .clock-sub{
+    font-family:var(--serif);font-style:italic;font-size:17px;
+    color:var(--muted);text-align:center;max-width:36em;margin:14px auto 0;
+  }
+  .clock-sub strong{color:var(--text);font-style:normal;font-family:var(--sans)}
+
+  /* ---------- nav ---------- */
+  .nav{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px;
+    padding:18px 0 8px;margin-bottom:28px;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .nav a{color:var(--faint)}
+  .nav a:hover{color:var(--gold);text-decoration:none}
+
+  /* ---------- sections ---------- */
+  section{margin:52px 0}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:6px}
+  .sec-head h2{
+    font-family:var(--serif-sc);font-weight:400;font-size:31px;
+    margin:0;color:var(--text);white-space:nowrap;
+  }
+  .sec-head .rule{flex:1;border-top:1px solid var(--line);transform:translateY(-6px)}
+  .sec-note{
+    font-family:var(--mono);font-size:12.5px;color:var(--faint);
+    letter-spacing:.06em;margin:0 0 20px;
+  }
+  .sub-head{
+    font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--gold-dim);margin:30px 0 12px;
+  }
+
+  /* ---------- pills & chips ---------- */
+  .pill{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:3px 9px;border:1px solid var(--line);
+    color:var(--muted);background:var(--ink);white-space:nowrap;
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+  .pill.ok{color:var(--ok)} .pill.ok .dot{background:var(--ok)}
+  .pill.warn{color:var(--warn)} .pill.warn .dot{background:var(--warn)}
+  .pill.bad{color:var(--bad)} .pill.bad .dot{background:var(--bad)}
+  .pill.odd{color:var(--odd)} .pill.odd .dot{background:var(--odd)}
+  .pill.gold{color:var(--gold)} .pill.gold .dot{background:var(--gold)}
+  .pill.dead{color:var(--faint);text-decoration:line-through}
+  .chip{
+    display:inline-block;font-family:var(--mono);font-size:12px;
+    color:var(--muted);border:1px solid var(--line-soft);
+    padding:4px 10px;margin:0 6px 8px 0;background:var(--panel);
+  }
+  .chip b{color:var(--text);font-weight:600}
+  .who{
+    font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.06em;
+  }
+  .who em{color:var(--gold-dim);font-style:normal}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid;gap:14px}
+  .grid.cols-2{grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+  .grid.cols-3{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+  .card{
+    background:var(--panel);border:1px solid var(--line);
+    padding:16px 18px 15px;display:flex;flex-direction:column;gap:8px;
+  }
+  .card .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .card h3{
+    font-family:var(--sans);font-weight:700;font-size:17.5px;
+    margin:0;line-height:1.25;color:var(--text);
+  }
+  .card .role{font-size:13.5px;color:var(--faint);margin-top:1px}
+  .voice{
+    font-family:var(--serif);font-style:italic;font-size:16.5px;
+    line-height:1.5;color:var(--muted);margin:0;
+  }
+  .voice strong{color:var(--text);font-style:normal;font-family:var(--sans);font-size:14.5px}
+  .card .foot{margin-top:auto;padding-top:4px}
+
+  /* ---------- live strip ---------- */
+  .live-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .live{
+    background:linear-gradient(180deg,#241419 0%,var(--panel) 55%);
+    border:1px solid #4a2530;border-top:2px solid var(--bad);
+    padding:15px 17px;display:flex;flex-direction:column;gap:7px;
+  }
+  .live .tag{
+    font-family:var(--mono);font-size:10.5px;font-weight:600;
+    letter-spacing:.3em;color:var(--bad);text-transform:uppercase;
+  }
+  .live h3{font-size:17px;font-weight:700;margin:0;color:var(--text)}
+  .live p{margin:0;font-size:14.5px;color:var(--muted);line-height:1.5}
+
+  /* ---------- party ---------- */
+  .pc .role{color:var(--gold-dim)}
+  .offboard{margin-top:18px}
+
+  /* ---------- prime quest banner ---------- */
+  .prime{
+    background:var(--panel-2);border:1px solid var(--line);
+    border-left:3px solid var(--gold);
+    padding:22px 26px;margin-bottom:18px;
+  }
+  .prime .tag{
+    font-family:var(--mono);font-size:11px;letter-spacing:.32em;
+    color:var(--gold);text-transform:uppercase;
+  }
+  .prime h3{
+    font-family:var(--serif-sc);font-weight:400;font-size:27px;margin:6px 0 8px;
+  }
+  .prime p{margin:0;color:var(--muted);font-size:16px;max-width:62em}
+  .prime p b{color:var(--text)}
+
+  /* ---------- muster ---------- */
+  .muster{display:grid;gap:2px;grid-template-columns:1fr 1fr}
+  @media (max-width:760px){.muster{grid-template-columns:1fr}}
+  .m-row{
+    display:grid;grid-template-columns:170px 1fr;gap:6px 14px;align-items:baseline;
+    background:var(--panel);border:1px solid var(--line-soft);
+    padding:10px 14px;
+  }
+  .m-row .m-name{font-weight:700;font-size:15px}
+  .m-row .m-note{font-size:13.5px;color:var(--muted)}
+  .m-row .m-note .pill{margin-right:8px;transform:translateY(-1px)}
+  @media (max-width:520px){.m-row{grid-template-columns:1fr}}
+
+  /* ---------- ladder ---------- */
+  .ladder{border:1px solid var(--line);background:var(--panel)}
+  .rung{
+    display:grid;grid-template-columns:150px 1fr;gap:4px 18px;
+    padding:15px 20px;border-top:1px solid var(--line-soft);align-items:start;
+  }
+  .rung:first-child{border-top:none}
+  .rung .rank{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--odd);padding-top:4px;
+  }
+  .rung .r-body h3{margin:0 0 2px;font-size:17.5px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .rung .r-body h3 .dead-name{text-decoration:line-through;color:var(--faint)}
+  .rung .r-body .voice{font-size:16px}
+  @media (max-width:560px){.rung{grid-template-columns:1fr;gap:2px}}
+
+  /* ---------- missing posters ---------- */
+  .poster{border-style:dashed;background:var(--ink)}
+  .poster .last{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--odd);
+  }
+
+  /* ---------- sofia ---------- */
+  .quiet{
+    border:1px solid var(--line);background:var(--panel-2);
+    padding:22px 26px;margin-top:18px;
+  }
+  .quiet h3{font-family:var(--serif-sc);font-weight:400;font-size:23px;margin:0 0 8px}
+  .quiet .voice{max-width:56em}
+
+  /* ---------- footer ---------- */
+  .footer{
+    margin-top:70px;padding-top:26px;border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .footer .voice{font-size:18px;max-width:40em;margin:0 auto 14px}
+  .footer .count{
+    font-family:var(--mono);font-size:13px;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--gold);
+  }
+  .footer .fine{
+    font-family:var(--mono);font-size:11.5px;color:var(--faint);
+    margin-top:18px;letter-spacing:.06em;
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="eyebrow">After After World &middot; The Second Run &middot; Winter, Year Two</div>
+    <h1>The War Ledger</h1>
+    <p class="epigraph">The state of everything, as of the door of the Mirrorworks, with the alarm at maximum.</p>
+    <div class="clock">
+      <div class="clock-num">&asymp;30</div>
+      <div class="clock-label">Hours Remain</div>
+      <p class="clock-sub">Until Callahan is consumed and the Shadowfell falls. <strong>Pentad-Nine</strong> gives the figure to the minute, unasked, every time it changes. A boarding action is measured in minutes, and this one is not over. The count has barely moved. It will move again the moment you are off this ship.</p>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <a href="#party">The Six</a>
+    <a href="#quests">Quests</a>
+    <a href="#muster">The Muster</a>
+    <a href="#allies">Allies</a>
+    <a href="#enemies">Enemies</a>
+    <a href="#complicated">Complicated</a>
+    <a href="#missing">Missing</a>
+    <a href="#assets">In the Packs</a>
+  </nav>
+
+  <!-- ══════════════ LIVE ══════════════ -->
+  <section id="live" aria-label="Happening now">
+    <div class="live-grid">
+      <div class="live">
+        <div class="tag">Happening Now</div>
+        <h3>&ldquo;The dead man walks.&rdquo;</h3>
+        <p>You climbed the fortress from the furnace to the crown and walked in through the Grand Doors. Caspian is at the desk, smiling. In the four mirrors, he is not. The next session opens on initiative, with every alarm on the ship already ringing.</p>
+      </div>
+      <div class="live">
+        <div class="tag">In His Sleeve</div>
+        <h3>The courier went home</h3>
+        <p>A thing of mirror-glass and quicksilver, asleep in a velvet cradle beside a brass tube. It woke before the first blow and was past your faces before the second: out the door, through the ship, home to him. It cannot be read, only delivered. It is in that room with you, and it has not been sent yet.</p>
+      </div>
+      <div class="live">
+        <div class="tag">Out of Reach</div>
+        <h3>Thoril is already in the dark</h3>
+        <p>He crossed into the Shadowfell alone, at half strength, and is not answering. Three gods wait on a call only he can make.</p>
+      </div>
+      <div class="live">
+        <div class="tag">Changed</div>
+        <h3>Alamil is off the deck</h3>
+        <p>Found shackled at a drafting table in a gun bay full of cages, drawing the circle network from memory while a devil burned every third page. He is with Carxi at the exit now. The circles are still dead. But the one man who can mend them is no longer a year&rsquo;s work away.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ THE SIX ══════════════ -->
+  <section id="party">
+    <div class="sec-head"><h2>The Six</h2><div class="rule"></div></div>
+    <p class="sec-note">The active roster, plus one modron, one griffon, and a cloud.</p>
+    <div class="grid cols-3">
+      <div class="card pc">
+        <div class="top"><h3>Rat</h3><span class="pill odd"><span class="dot"></span>Deceased*</span></div>
+        <div class="role">Champion of Thoth &middot; spymaster</div>
+        <p class="voice">Officially dead, crushed by a rock in Limbo. Actually four inches tall, inside a brass pipe in the wall of Caspian&rsquo;s own room, sent up it once somebody found the hatch. The silver courier took the long way round and is in the room too. The pipe is its only way out. The man at the desk just told everyone else the dead man walks. *Of the six dragons who know his face, four would keep the secret. The risk is Tiamat herself &mdash; and IO, if the truth ever serves him.</p>
+      </div>
+      <div class="card pc">
+        <div><h3>R4</h3><div class="role">Champion of Aditi &middot; the Warforged King</div></div>
+        <p class="voice">Aditi reached for him in the flak and opened the gift he had carried unopened for years. On a ship full of minds, he found the one mortal one and walked straight to it. Does not know how to do a small thing.</p>
+      </div>
+      <div class="card pc">
+        <div><h3>Steven</h3><div class="role">Prophet of Essyliss &middot; LIMA founder</div></div>
+        <p class="voice">A bone devil came through the barrage for him with his own soul-debt on a cord round its neck. The party killed it in the air. Then Steven ate the contract. Ten tenets, the Everscale warm, and nothing owed to anyone.</p>
+      </div>
+      <div class="card pc">
+        <div><h3>Smolder</h3><div class="role">Underdark operator &middot; entrepreneur</div></div>
+        <p class="voice">Took the contract for Ralf off the scrivener&rsquo;s lectern and read it to the last clause. Six seals, one per personality, one line in the smallest script about a vacated vessel, complete to the crown, and a signature. Then smashed six scrying orbs with Asfache and watched two years of being followed stop, one orb at a time. The counterparty is thirty feet away and has not asked for the paper back.</p>
+      </div>
+      <div class="card pc">
+        <div><h3>Una</h3><div class="role">Golden dragon &middot; heir of Dracogenesis</div></div>
+        <p class="voice">Saw herself drawn, in a careful clerk&rsquo;s hand, on a wall of two years of sketches: the slab, the leg, the five heads bending down to look. Then she burned the wall. There is a cold glass ball in her pack now, and she has not said why.</p>
+      </div>
+      <div class="card pc">
+        <div><h3>Asfache</h3><div class="role">Champion of Kratos &middot; seer of the Pool</div></div>
+        <p class="voice">Shot out of Rodney&rsquo;s saddle by a chain gun on the climb. The party came for him loud and got him back, and three storeys later he took the guns back and Rodney found him there. Then he and Smolder put their hands through Caspian&rsquo;s eyes, six orbs at a time.</p>
+      </div>
+    </div>
+    <div class="offboard">
+      <div class="sub-head">Off the board</div>
+      <span class="chip"><b>Sofia</b> &middot; at LIMA HQ &middot; two goddesses have an idea, and the party has a vote</span>
+      <span class="chip"><b>Bram</b> &middot; unreachable &middot; on V&auml;in&auml;m&ouml;inen&rsquo;s business; it concerns a song</span>
+      <span class="chip"><b>Ralf</b> &middot; Mont Kiara &middot; six opinions, one contract, demons at the doors</span>
+    </div>
+  </section>
+
+  <!-- ══════════════ QUESTS ══════════════ -->
+  <section id="quests">
+    <div class="sec-head"><h2>The Quest Board</h2><div class="rule"></div></div>
+    <p class="sec-note">Everything open, everything owed, and the one thing already won.</p>
+
+    <div class="prime">
+      <div class="tag">The Prime Quest</div>
+      <h3>Silence the Siren</h3>
+      <p>Gather every force that will come, reach the <b>Edge of Existence</b>, and when Ghroth opens his mouth, read the <b>writ</b>. The win condition is already in your pack. The army is the remaining problem &mdash; and so is everything below.</p>
+    </div>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="top"><h3>The Shadowfell Clock</h3><span class="pill bad"><span class="dot"></span>30 hrs</span></div>
+        <p class="voice">The Feywild came through whole. The Shadowfell will not, unless Tenebrosum dies at the Sunless Lake and Thoril lives long enough to seal the door behind it. Sofia said it looks like a tree, with its roots down Callahan&rsquo;s throat. He has been screaming for months.</p>
+        <div class="foot who">The way in: Mystica &rarr; Albion &rarr; the portal &rarr; down. First: survive Avernus, then get home</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Broken Circle</h3><span class="pill warn"><span class="dot"></span>Mendable</span></div>
+        <p class="voice">Every circle on the continent delivers to Avernus, a trap built for this party. Mordenkainen quoted a year to fix it alone. He is no longer alone: the man who built the network is off the Chained Deck and on his way home with you.</p>
+        <div class="foot who">&rarr; <em>R4</em> &middot; Alamil found; the repair is a project now, not a wish</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Late Radtismir</h3><span class="pill gold"><span class="dot"></span>Holding</span></div>
+        <p class="voice">A counterfeit corpse, the marked leg, a rock in Limbo, and the amulet handed over exactly as promised. Tiamat left satisfied, believing Rat dead. Six dragons know his face &mdash; and four of them would never tell her. The con holds until Tiamat sees it herself, or IO decides the truth is useful.</p>
+        <div class="foot who">&rarr; <em>everyone, forever</em> &middot; stay dead, Rat</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Essyliss to the Outlands</h3><span class="pill warn"><span class="dot"></span>Half done</span></div>
+        <p class="voice">Found, forgiven, restored. Still owed: bringing her to IO, so the World Serpent can be remade. Meanwhile Bahamut hunts the planes for a goddess who is currently folding blankets at LIMA.</p>
+        <div class="foot who">&rarr; <em>Steven</em> &middot; IO&rsquo;s direct task</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Null Problem</h3><span class="pill bad"><span class="dot"></span>Out of your hands</span></div>
+        <p class="voice">The amulet is Tiamat&rsquo;s now, given over a counterfeit grave. Mordenkainen&rsquo;s escape hatch is unbuilt. Her father has promised, publicly, to open the prison, and you are the only people alive who have watched an unsealed Null end a war.</p>
+        <div class="foot who">Where she takes it, nobody knows</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Contract</h3><span class="pill ok"><span class="dot"></span>In your pack</span></div>
+        <p class="voice">Caspian&rsquo;s offer to Ralf: a body for each of the six. You took it off the lectern before the seals were dry, and then you read the fine print. Six bodies was never the offer. One skull with Ley Crystals in it was, and six distractions. Nothing lands at Mont Kiara tomorrow, and somebody owes Ralf a conversation.</p>
+        <div class="foot who">&rarr; <em>Smolder</em> &middot; carrying it; the scrivener left with the yugoloths</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Letter</h3><span class="pill bad"><span class="dot"></span>Unsent</span></div>
+        <p class="voice">He watched the con and had it drawn. Then he dictated something no scrivener was allowed to copy and put it in a courier that cannot be read, only delivered. The courier fled to him when you came for it. It is in the room now, asleep, with the truth in its mouth and a brass tube for a door.</p>
+        <div class="foot who">&rarr; <em>everyone</em> &middot; and one very small rogue in the tube</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Githzerai&rsquo;s Request</h3><span class="pill odd"><span class="dot"></span>Waiting</span></div>
+        <p class="voice">Caught spying on the corpse-watch; Asfache ran him down. His first question: githyanki, or mind flayers? The answer &mdash; a r&eacute;sum&eacute; of dead illithids &mdash; turned capture into a request for help. With what, he has not said. He left a scroll: directions to his city, in Deep Speech and Gith.</p>
+        <div class="foot who">&rarr; <em>Asfache &amp; Smolder</em> &middot; nobody aboard reads either script</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Mechanus Surrendered</h3><span class="pill odd"><span class="dot"></span>New</span></div>
+        <p class="voice">The plane of pure law ran the numbers on Ghroth and began administering its own defeat. That is where the lieutenants&rsquo; clockwork comes from. Pentad-Nine says the proof is incomplete. It watched you break it, and it is looking for somebody with the rank to hear that.</p>
+        <div class="foot who">&rarr; <em>Asfache &amp; R4</em> &middot; brought home from the Far Realm</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Forgotten God</h3><span class="pill warn"><span class="dot"></span>Active</span></div>
+        <p class="voice">The doll and the orb are one god now, and it remembers where its body is. Reunite it with the titan and it can lead you to the Pool of Memories. Something is drinking the Pool smaller every day, and the god can feel it happening.</p>
+        <div class="foot who">&rarr; <em>Asfache &amp; Una</em> &middot; the body sleeps under the Susini Sea</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Arsenal</h3><span class="pill ok"><span class="dot"></span>Tallied</span></div>
+        <p class="voice">Eighteen months of the program, counted at last: roughly a hundred La Bombas built, most already issued to the armies that will march on the Edge. Fifteen came out of Ralf&rsquo;s own stores and are riding toward a flying warship &mdash; along with his notes for something larger. The manifest is under In the Packs. About twenty Primordial Shadows in hand: the fragments that hold a Far Realm door open long enough to chase what flees through it.</p>
+        <div class="foot who">&rarr; <em>Ragar &amp; Mont Kiara</em> &middot; the lines keep running while you fight</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Baz&rsquo;s Reaper</h3><span class="pill bad"><span class="dot"></span>Stalking</span></div>
+        <p class="voice">A dead prince in the party&rsquo;s shadows, wanting exactly one thing. Only Bram can end him. Baz only needs to catch Bram once.</p>
+        <div class="foot who">&rarr; <em>Bram</em> &middot; who is currently unreachable</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Ent Army</h3><span class="pill warn"><span class="dot"></span>Failing</span></div>
+        <p class="voice">The travel trees are going wrong without Sofia. Bark off-colour, sap running blue, the awakened ones silent. That network was how armies were meant to reach the Edge.</p>
+        <div class="foot who">No successor. Nobody has been named to tend them</div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Smaller Ledgers</h3><span class="pill ok"><span class="dot"></span>Assorted</span></div>
+        <p class="voice">The Heart of the Forest still wants delivering to Eara. The Smut Shaq&rsquo;s market share in Wip is uncontested, as of one La Bomba ago. The franchise is somehow thriving during the apocalypse.</p>
+        <div class="foot who">&rarr; <em>Sofia&rsquo;s seeds &middot; Smolder&rsquo;s books</em></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ MUSTER ══════════════ -->
+  <section id="muster">
+    <div class="sec-head"><h2>The Muster</h2><div class="rule"></div></div>
+    <p class="sec-note">Six banners secured &middot; three campaigns running &middot; one war of choice &middot; four tokens undelivered.</p>
+    <div class="muster">
+      <div class="m-row"><div class="m-name">The Feywild</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Pledged</span>Every court, unconditionally. &ldquo;You will not have to ask twice.&rdquo;</div></div>
+      <div class="m-row"><div class="m-name">Junkweil</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Secured</span>Wip, Jun, Mopak, and the cities between. The home front.</div></div>
+      <div class="m-row"><div class="m-name">The Underdark</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Committed</span>The Drow will fight Ghroth. Watch the Underqueen.</div></div>
+      <div class="m-row"><div class="m-name">Onkro</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Secured</span>Dwarven holds purged of shapeshifters and pledged.</div></div>
+      <div class="m-row"><div class="m-name">Gaiadon</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Secured</span>The warforged are awake, and they remember who woke them.</div></div>
+      <div class="m-row"><div class="m-name">Newport</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Allied</span>Former enemies. The siege is history; the trade is real.</div></div>
+      <div class="m-row"><div class="m-name">Tamsend</div><div class="m-note"><span class="pill warn"><span class="dot"></span>Under attack</span>Mont Kiara answered at last: demons at the doors, proxies holding them, a contract due tomorrow.</div></div>
+      <div class="m-row"><div class="m-name">Land of Elements</div><div class="m-note"><span class="pill warn"><span class="dot"></span>Partial</span>United under Asfache. Zeimia and Caelum still hold out.</div></div>
+      <div class="m-row"><div class="m-name">Mystica</div><div class="m-note"><span class="pill warn"><span class="dot"></span>Contested</span>Advancing city by city, under shadow invasion. Cat holds the line.</div></div>
+      <div class="m-row"><div class="m-name">The Sphinxes</div><div class="m-note"><span class="pill warn"><span class="dot"></span>Pinned</span>Allied, and tied up fighting the shadow war in Kemet.</div></div>
+      <div class="m-row"><div class="m-name">The Beastlands</div><div class="m-note"><span class="pill ok"><span class="dot"></span>Committed</span>The beasts will come; whether the Mortai join, the Witness decides. Rat holds the Cat Lord&rsquo;s bell.</div></div>
+      <div class="m-row"><div class="m-name">Avernus</div><div class="m-note"><span class="pill bad"><span class="dot"></span>At war</span>You are attacking its king from the sky, beside an Arch Devil. &ldquo;Ally&rdquo; does not quite cover it.</div></div>
+      <div class="m-row"><div class="m-name">The Dragons</div><div class="m-note"><span class="pill odd"><span class="dot"></span>Unknown</span>Meiko went recruiting. The Smoot dispersed. Nobody knows where.</div></div>
+      <div class="m-row"><div class="m-name">Pirate Isle</div><div class="m-note"><span class="pill gold"><span class="dot"></span>Token held</span>Show young Jhodos his Star-Shell Pendant. You were literally just there, by accident. Nobody knocked.</div></div>
+      <div class="m-row"><div class="m-name">The Palanquin</div><div class="m-note"><span class="pill gold"><span class="dot"></span>Token held</span>Show young General Gloom his Captain&rsquo;s Seal.</div></div>
+      <div class="m-row"><div class="m-name">Land of Gears</div><div class="m-note"><span class="pill gold"><span class="dot"></span>Token held</span>The Unnumbered would follow you. Their king is in the way.</div></div>
+      <div class="m-row"><div class="m-name">Eara</div><div class="m-note"><span class="pill gold"><span class="dot"></span>Token held</span>The Heart of the Forest, for a Circle of Elders on an island unfound.</div></div>
+    </div>
+  </section>
+
+  <!-- ══════════════ ALLIES ══════════════ -->
+  <section id="allies">
+    <div class="sec-head"><h2>Allies</h2><div class="rule"></div></div>
+    <p class="sec-note">The ones who answer when you call. Mostly.</p>
+
+    <div class="sub-head">Gods &amp; Powers</div>
+    <div class="grid cols-3">
+      <div class="card">
+        <div><h3>The Three at the Edge</h3><div class="role">Thoth &middot; Kratos &middot; Freya</div></div>
+        <p class="voice">Holding the Edge of Existence, and waiting for Thoril&rsquo;s call to come down to the Shadowfell. Nobody can reach Thoril.</p>
+        <div class="foot who">&rarr; <em>Rat, Asfache, Una &amp; Smolder</em></div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Essyliss</h3><span class="pill ok"><span class="dot"></span>New</span></div>
+        <div class="role">The binding force of the World Serpent</div>
+        <p class="voice">Found folding blankets at LIMA under a borrowed name. Reconciled, returned the Everscale, and no longer permitted to give up. She wrote that down.</p>
+        <div class="foot who">&rarr; <em>Steven</em> &middot; last seen arguing with Eldath over how to reach Sofia</div>
+      </div>
+      <div class="card">
+        <div><h3>Aquandria</h3><div class="role">Voice of the fey courts</div></div>
+        <p class="voice">Pledged every court and every wild thing that still knows her name, because the Feywild came through whole and she knows exactly who paid for that.</p>
+      </div>
+      <div class="card">
+        <div><h3>Aditi</h3><div class="role">Goddess of consciousness</div></div>
+        <p class="voice">Stronger for every warforged R4 woke. Her gift reaches into any living mind, and goes quiet in the Far Realm.</p>
+        <div class="foot who">&rarr; <em>R4</em></div>
+      </div>
+      <div class="card">
+        <div><h3>Eldath</h3><div class="role">Goddess of still waters</div></div>
+        <p class="voice">Carried Sofia to LIMA herself. Comes once a week, sits, and does not try to wake her.</p>
+      </div>
+      <div class="card">
+        <div><h3>Ohn, in the doll</h3><div class="role">The forgotten god of memory</div></div>
+        <p class="voice">Cheerful, confused, and fond of puzzles. Knows the orb is his, knows the titan is his body, and knows something is eating him. &ldquo;I&rsquo;m getting smaller.&rdquo;</p>
+        <div class="foot who">&rarr; <em>Asfache</em> carries the orb</div>
+      </div>
+    </div>
+
+    <div class="sub-head">On the Ground</div>
+    <div class="grid cols-3">
+      <div class="card">
+        <div><h3>Catroniel</h3><div class="role">Ghostblood &middot; Rat&rsquo;s mentor</div></div>
+        <p class="voice">Alive twice over. Holding Mystica with Junish airships, and the only eye you have on the far side of anything.</p>
+        <div class="foot who">&rarr; <em>Rat</em> &middot; both warnings were his</div>
+      </div>
+      <div class="card">
+        <div><h3>Ragar</h3><div class="role">Gnomish arcanist &middot; La Bomba smith</div></div>
+        <p class="voice">The best arcanist you have left looked at the circle for a long while and said the thing nobody wanted. He cannot fix it. He said it plainly.</p>
+        <div class="foot who">&rarr; <em>R4</em></div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Alamil</h3><span class="pill ok"><span class="dot"></span>Found</span></div>
+        <div class="role">Portal mage &middot; the network&rsquo;s builder</div>
+        <p class="voice">Shackled at a drafting table on the Chained Deck, drawing the circles from memory, a devil burning every third page. Talked too fast when you freed him and could not stop. He is with Carxi at the exit and he is worth a continent of doors.</p>
+        <div class="foot who">&rarr; <em>R4</em></div>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Malachas</h3><span class="pill ok"><span class="dot"></span>In the field</span></div>
+        <div class="role">Arch Devil &middot; co-belligerent</div>
+        <p class="voice">The stone finally got used, and he answered with an army. He found Caspian&rsquo;s ship, brought his host, and is rising through the barrage beside you. What he expects to hold afterward, nobody has asked.</p>
+        <div class="foot who">&rarr; <em>the whole party, now</em></div>
+      </div>
+      <div class="card">
+        <div><h3>Carxi</h3><div class="role">Rat&rsquo;s prot&eacute;g&eacute;e</div></div>
+        <p class="voice">On the assault with the party, grinning about a corpse she helped dress. Her two-year errand is closed; the amulet she stole has gone to its strangest owner yet.</p>
+        <div class="foot who">&rarr; <em>Rat</em></div>
+      </div>
+      <div class="card">
+        <div><h3>Mordenkainen</h3><div class="role">Archmage &middot; transactional</div></div>
+        <p class="voice">Built the corpse, read the circles, named the trap, quoted the repair (one year, or Alamil) &mdash; and then teleported everyone to the war. He is on the field beside you, which makes him the ride home. Keep the ride home alive.</p>
+      </div>
+      <div class="card">
+        <div><h3>Felina the Panther</h3><div class="role">Envoy of the Cat Lord</div></div>
+        <p class="voice">She liked Sofia. She carried the summons anyway, and she accepted Rat&rsquo;s offer to stand in the fire meant for someone else.</p>
+      </div>
+      <div class="card">
+        <div><h3>King Ramses</h3><div class="role">Elected King of Jun</div></div>
+        <p class="voice">Still gravely wounded, still ruling. His city already knows what a broken crystal costs. He is the cautionary tale in every war council.</p>
+      </div>
+      <div class="card">
+        <div><h3>Dryzzlazz</h3><div class="role">The Spider Queen, cured</div></div>
+        <p class="voice">Sane this time, and early. Rules the Fishsong sewers and opens Underdark doors that would otherwise cost blood.</p>
+      </div>
+      <div class="card">
+        <div><h3>Flamencio</h3><div class="role">An Artist</div></div>
+        <p class="voice">Paints things into being, deals blackjack outside of time, and is genuinely fond of you. The painting of an ear will summon him.</p>
+      </div>
+    </div>
+
+    <div class="sub-head">Underfoot &amp; Attached</div>
+    <div class="grid cols-3">
+      <div class="card">
+        <div class="top"><h3>Pentad-Nine</h3><span class="pill odd"><span class="dot"></span>Cold</span></div>
+        <div class="role">Mechanus pentadrone &middot; rides Asfache</div>
+        <p class="voice">Holds the schedule and gives the hour unasked. Answers every question completely. Will close a breach even if a person is the breach. It reports.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The Witness</h3><span class="pill odd"><span class="dot"></span>Watching</span></div>
+        <div class="role">Senior Mortai &middot; attends Rat</div>
+        <p class="voice">Eight feet of slow grey weather with a face somewhere inside it. Came back from the rite with Rat and will not leave. Watches. Reports to its seniors among the Mortai. Does not help. And now it is official: whether the Mortai march to the Edge, the weather decides.</p>
+      </div>
+      <div class="card">
+        <div><h3>Rodney</h3><div class="role">Griffon warmount</div></div>
+        <p class="voice">Aged fifteen years in one afternoon. The guns shot his rider out of the saddle and did not take him; he circled the blade riderless until he found Asfache in the bay that did it. In his prime, inside a flying fortress, three storeys below the man who owns it.</p>
+        <div class="foot who">&rarr; <em>Asfache</em></div>
+      </div>
+      <div class="card">
+        <div><h3>Bast</h3><div class="role">The last Junish brother</div></div>
+        <p class="voice">Soft, slow, wise. Horus and Nubia are spent and gone. One brother, one strike, no further relief valve.</p>
+        <div class="foot who">&rarr; <em>Smolder</em></div>
+      </div>
+      <div class="card">
+        <div><h3>Bloodthirst</h3><div class="role">Sentient vorpal blade</div></div>
+        <p class="voice">The sword would like to be fed now, please.</p>
+        <div class="foot who">&rarr; <em>Rat</em></div>
+      </div>
+      <div class="card">
+        <div><h3>Memory-Cal</h3><div class="role">A memory in green light</div></div>
+        <p class="voice">Not the real Cal. Asfache&rsquo;s memory of him, made walking and warm by a droplet of the Pool. Dissolves when the orb is left behind.</p>
+      </div>
+      <div class="card">
+        <div><h3>Etta</h3><div class="role">Fire falcon</div></div>
+        <p class="voice">Divine familiar. Goes everywhere Una goes, and refuses precisely one plane.</p>
+        <div class="foot who">&rarr; <em>Una</em></div>
+      </div>
+    </div>
+
+    <div class="sub-head">The Long Tail</div>
+    <div>
+      <span class="chip"><b>Luna&rsquo;s Wip</b> &middot; council, guilds, and a new regent (see: Complicated)</span>
+      <span class="chip"><b>Aussssten</b> &middot; lizardfolk elder, Steven&rsquo;s unused council vote</span>
+      <span class="chip"><b>Skol Cantine</b> &middot; field operator, La Bombas in hand</span>
+      <span class="chip"><b>Ligma Jyzzlazzra</b> &middot; running Smolder&rsquo;s Underdark cleanup, unsupervised</span>
+      <span class="chip"><b>Nala &amp; Raja</b> &middot; leonin, minding the Shaqs</span>
+      <span class="chip"><b>Amelia</b> &middot; Bram&rsquo;s sister, the Slums franchise</span>
+      <span class="chip"><b>Alexander</b> &middot; Alexandria, charmed by candlelight</span>
+      <span class="chip"><b>Chlodio</b> &middot; Lutetia, charmed by Steven</span>
+      <span class="chip"><b>Willamet</b> &middot; Mopak, holds a grudge against Newport</span>
+      <span class="chip"><b>Vessa</b> &middot; copper chronicler, last seen at the Smoot</span>
+      <span class="chip"><b>Gofor Hindle</b> &middot; will sell you anything, including the truth</span>
+      <span class="chip"><b>Stinky</b> &middot; a giant snake, paid in WonderWads</span>
+      <span class="chip"><b>Dak&rsquo;kon</b> &middot; a githzerai with an unnamed request, still waiting</span>
+    </div>
+  </section>
+
+  <!-- ══════════════ ENEMIES ══════════════ -->
+  <section id="enemies">
+    <div class="sec-head"><h2>Enemies</h2><div class="rule"></div></div>
+    <p class="sec-note">The order of battle, as far as anyone has lived to report it.</p>
+
+    <div class="ladder">
+      <div class="rung">
+        <div class="rank">The Siren</div>
+        <div class="r-body">
+          <h3>Ghroth</h3>
+          <p class="voice">The eye at the end of everything. When the last crystal fails, he sings, and the Great Old Ones follow the song. The Wip crystal has about three years. You have heard the song once already.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <div class="rank">Lieutenant I</div>
+        <div class="r-body">
+          <h3><span class="dead-name">Innominandum</span><span class="pill dead">Dead</span></h3>
+          <p class="voice">First of the three, and the first ever killed. Smolder and Rat, inside its own engine, in the Far Realm. Its death is why the clock below runs twice as fast.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <div class="rank">Lieutenant II</div>
+        <div class="r-body">
+          <h3>Tenebrosum<span class="pill bad"><span class="dot"></span>Next &middot; 30 hrs</span></h3>
+          <p class="voice">At the Sunless Lake in the deep Shadowfell, eating hope at double speed, roots down a good man&rsquo;s throat. Everything you know about it, Sofia paid for.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <div class="rank">Lieutenant III</div>
+        <div class="r-body">
+          <h3>Mappo No Ryujin<span class="pill odd"><span class="dot"></span>Waiting</span></h3>
+          <p class="voice">Coiled on the Pool of Memories and anchored there. It cannot leave. You choose the moment, but every day you wait, the Pool is smaller.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <div class="rank">The Quiet War</div>
+        <div class="r-body">
+          <h3>Shapeshifters &amp; shadow creatures</h3>
+          <p class="voice">Purged where you have walked; present where you have not. And every night, Mystica burns a little. They fear fire. Cat and the sphinxes hold the line.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-head">Nearer Threats</div>
+    <div class="grid cols-3">
+      <div class="card">
+        <div class="top"><h3>Caspian</h3><span class="pill bad"><span class="dot"></span>Across the room</span></div>
+        <div class="role">Rakshasa &middot; king of Avernus</div>
+        <p class="voice">You have his prisoner, his contract, and his room, and you broke the eyes he watched you with. He has a courier in his sleeve, four mirrors that do not agree with him, and a smile. He said the dead man walks to a doorway with five people in it. &ldquo;The dead man walks.&rdquo; He killed the wrong number of you two years ago and he is about to find out which.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Baz&rsquo;s Reaper</h3><span class="pill bad"><span class="dot"></span>Hunting</span></div>
+        <div class="role">Ghost of a bastard prince</div>
+        <p class="voice">Lives in your shadows and wants one man. He has not struck yet this run. That is not the same as gone.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Astridia</h3><span class="pill odd"><span class="dot"></span>Distant</span></div>
+        <div class="role">Head of the Council of Eternity</div>
+        <p class="voice">Oversees every timeline and wants the rest of them. Your deal with Damian Heath points directly at her. She has not looked at you yet. Keep it that way.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Kil&rsquo;urden loyalists</h3><span class="pill warn"><span class="dot"></span>Hunted</span></div>
+        <div class="role">Drow remnant</div>
+        <p class="voice">Survivors of an assassination with Smolder&rsquo;s fingerprints on it, if anyone ever dusts. Ligma is hunting them so nobody has to.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ COMPLICATED ══════════════ -->
+  <section id="complicated">
+    <div class="sec-head"><h2>It&rsquo;s Complicated</h2><div class="rule"></div></div>
+    <p class="sec-note">Not allies. Not enemies. Handle each one like a lit fuse.</p>
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="top"><h3>Tiamat</h3><span class="pill gold"><span class="dot"></span>Paid &amp; gone</span></div>
+        <p class="voice">She got what she came for: the amulet, off the corpse of a thief her own tracking swore was Rat. She left believing it. Her parting words went to Una, and they were &ldquo;I&rsquo;ll be keeping an eye on you.&rdquo;</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>IO, the Ninefold Dragon</h3><span class="pill gold"><span class="dot"></span>One sending away</span></div>
+        <p class="voice">Alone in an empty field where the greatest assembly in ten thousand years used to be. He declared to every dragon alive that he will free Null. R4 handed him a sending stone meant for Oman, which means a god is, for now, one sending away. Nobody has reached for it.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Bahamut</h3><span class="pill warn"><span class="dot"></span>Searching</span></div>
+        <p class="voice">Hunting the planes for Essyliss, on IO&rsquo;s orders. He does not know that Steven got there first, or that the goddess he seeks is an elf in white with a volunteer schedule.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Null</h3><span class="pill odd"><span class="dot"></span>Sealed &middot; moved</span></div>
+        <p class="voice">The third sibling, in the amulet, in his sister&rsquo;s claws now. He spared you once, in the First Run. Then he killed gods and the war was lost. His father has promised, publicly, to open the prison &mdash; and you just handed it into the family.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Luna Cantine</h3><span class="pill warn"><span class="dot"></span>Crowned</span></div>
+        <p class="voice">Queen of Wip, as of one conversation. She told the council that Far Realm creatures made the crater in the harbour, and nobody contradicted her. Including the Queen. No bill has arrived yet.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Ralf</h3><span class="pill warn"><span class="dot"></span>Divided</span></div>
+        <p class="voice">Six minds, one body, a university under siege, and students who move like him because pieces of him are inside them. Caspian&rsquo;s contract would give every mind its own body. Some of him wants that more than anything. It arrives tomorrow.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Sinidil Barrirae</h3><span class="pill warn"><span class="dot"></span>Scheming</span></div>
+        <p class="voice">The Underqueen. Reliable against Ghroth, because Ghroth eats Underdarks too. Scheming about everything else, including your Rock.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Damian Heath</h3><span class="pill odd"><span class="dot"></span>The deal stands</span></div>
+        <p class="voice">The time cop who let you go. If you beat Ghroth, he comes to collect you for his war against Astridia. Losing is the only way out of the contract, and it has its own drawbacks.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>The White Lion</h3><span class="pill gold"><span class="dot"></span>Paid in full?</span></div>
+        <p class="voice">You persuaded him, robbed him, dismembered him, then years later handed the pieces back. He wrote you a second writ anyway. Artists cannot be destroyed, and they keep accounts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ MISSING ══════════════ -->
+  <section id="missing">
+    <div class="sec-head"><h2>Missing &amp; Unreachable</h2><div class="rule"></div></div>
+    <p class="sec-note">The ones nobody can currently reach. Some of them are load-bearing.</p>
+    <div class="grid cols-3">
+      <div class="card poster">
+        <div class="top"><h3>Thoril</h3><span class="pill bad"><span class="dot"></span>Critical</span></div>
+        <div class="last">Last seen: crossing into the Shadowfell, alone</div>
+        <p class="voice">Half his life already spent, the other half promised to Callahan&rsquo;s door. Three gods wait on his call, and he is not answering anyone. No Thoril, no gods, no seal.</p>
+      </div>
+      <div class="card poster">
+        <div class="top"><h3>Oman &amp; Meiko</h3><span class="pill odd"><span class="dot"></span>Unknown</span></div>
+        <div class="last">Last seen: the Dragonsmoot</div>
+        <p class="voice">The assembly dispersed and took both of them with it. Una&rsquo;s gift for her father is still on a workbench in Wip, unfinished.</p>
+      </div>
+      <div class="card poster">
+        <div class="top"><h3>Bram</h3><span class="pill odd"><span class="dot"></span>Unreachable</span></div>
+        <div class="last">On V&auml;in&auml;m&ouml;inen&rsquo;s business</div>
+        <p class="voice">Sendings do not connect. Whatever he is doing, it concerns a song.</p>
+      </div>
+      <div class="card poster">
+        <div class="top"><h3>Ulaxium</h3><span class="pill warn"><span class="dot"></span>Not found</span></div>
+        <div class="last">Last heard: Mont Kiara, some time ago</div>
+        <p class="voice">President of the Arcane University. The party fought through his own halls, past demons and proxies alike, and did not find him. Nobody has said the obvious thing out loud.</p>
+      </div>
+      <div class="card poster">
+        <div class="top"><h3>Cal</h3><span class="pill odd"><span class="dot"></span>Fate unknown</span></div>
+        <div class="last">Last seen: inside the Orb of Consciousness</div>
+        <p class="voice">The Orb shattered when Heart Melts died. Only a memory of him walks around now, wearing green light.</p>
+      </div>
+    </div>
+
+    <div class="quiet">
+      <h3>At LIMA HQ</h3>
+      <p class="voice">Sofia sleeps without sleeping. Eldath carried her there and comes once a week. Rat sat with her through the night, inside the radius where she speaks a language no god reads. Nothing has fixed this. Not the Oakfather, not restoration magic, not wishes. Now two goddesses argue over her bed: a forced wildshape is their working idea, and neither promises it brings her mind back. Steven owes the party the conversation. No decision has been made. Everything you know about Tenebrosum, she paid for.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ ASSETS ══════════════ -->
+  <section id="assets">
+    <div class="sec-head"><h2>In the Packs</h2><div class="rule"></div></div>
+    <p class="sec-note">Some of this will matter. You get to guess which.</p>
+    <div>
+      <span class="chip"><b>The Writ of Silence</b> &middot; the win condition, second edition</span>
+      <span class="chip"><b>The Everscale</b> &middot; returned; ten tenets live, and no soul owed to anyone any more</span>
+      <span class="chip"><b>~20 Primordial Shadows</b> &middot; door-holders; count disputed</span>
+      <span class="chip"><b>The doll &amp; the green orb</b> &middot; one god, some assembly required</span>
+      <span class="chip"><b>Ralf&rsquo;s La Bombas</b> &middot; fifteen came aboard; the manifest below is the count at the vent, not the count now</span>
+      <span class="chip"><b>The contract</b> &middot; six seals, six colours, one per Ralf; taken off the lectern before the ink was dry, and read: Clause VI</span>
+      <span class="chip"><b>A cold orb</b> &middot; from the Gallery; dark, heavy, humming with nothing; Una&rsquo;s, and she has not said why</span>
+      <span class="chip"><b>Three soul coins</b> &middot; a yugoloth&rsquo;s payment for taking a scrivener off your hands; warm, heavy, humming with whoever is inside</span>
+      <span class="chip"><b>The La Bombara notes</b> &middot; the greater bomb, in Ralf&rsquo;s own hand; recipe held, crystal not</span>
+      <span class="chip"><b>A counterfeit grave</b> &middot; Limbo; contents: one boulder, one leg, no Rat</span>
+      <span class="chip"><b>Malachas&rsquo;s stone</b> &middot; spent well; the devil is now beside you</span>
+      <span class="chip"><b>The Cat Lord&rsquo;s bell</b> &middot; with Rat; ring it when the time comes to fight at the Edge</span>
+      <span class="chip"><b>Dak&rsquo;kon&rsquo;s scroll</b> &middot; directions to a githzerai city, in Deep Speech and Gith; untranslated</span>
+      <span class="chip"><b>A sending stone</b> &middot; far end currently held by IO</span>
+      <span class="chip"><b>The Star-Shell Pendant</b> &middot; Pirate Isle, undelivered</span>
+      <span class="chip"><b>The Captain&rsquo;s Seal</b> &middot; the Palanquin, undelivered</span>
+      <span class="chip"><b>The Heart of the Forest</b> &middot; Eara, unfound</span>
+      <span class="chip"><b>The Amulet of the Planes</b> &middot; a slot machine; latest detours: Fortitude, a mirror dimension with something gangly in it, and Pirate Isle</span>
+      <span class="chip"><b>Bram Balls</b> &middot; same-plane travel; do not ask</span>
+      <span class="chip"><b>Una&rsquo;s scale device</b> &middot; unfinished, undelivered</span>
+      <span class="chip"><b>The Doshenkana poison</b> &middot; Carxi&rsquo;s gift, unspent</span>
+    </div>
+
+    <div class="sub-head">The Armory &mdash; Ralf&rsquo;s Parting Gift</div>
+    <div class="grid cols-3">
+      <div class="card">
+        <div class="top"><h3>Field grade</h3><span class="pill ok"><span class="dot"></span>&times;8</span></div>
+        <div class="role">steel core &middot; 24 missiles</div>
+        <p class="voice">24d4+24 force in a 20-foot blast, thrown up to 140 feet. Two rounds of stillness, then the throw. The only grade you can realistically set off while something is trying to kill you.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Officer grade</h3><span class="pill warn"><span class="dot"></span>&times;4</span></div>
+        <div class="role">gold core &middot; 54 missiles</div>
+        <p class="voice">54d4+54 force in a 50-foot blast, 170 feet of range. Five full rounds of unbroken concentration. Bring friends who can hold a perimeter.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Siege grade</h3><span class="pill bad"><span class="dot"></span>&times;3</span></div>
+        <div class="role">gem core &middot; 105 missiles</div>
+        <p class="voice">105d4+105 force in a 100-foot blast, 220 feet of range. Ten rounds of doing absolutely nothing else. Not a combat action &mdash; a decision about a building.</p>
+      </div>
+      <div class="card">
+        <div class="top"><h3>La Bombara</h3><span class="pill gold"><span class="dot"></span>Recipe only</span></div>
+        <div class="role">Ralf&rsquo;s notes &middot; the greater bomb</div>
+        <p class="voice">Built once, in the run that was lost. Nine hundred missiles in a receptacle cut from Ley Crystal &mdash; one detonation, and nine unbroken minutes to arm it. You hold the knowledge. You do not hold a crystal.</p>
+      </div>
+    </div>
+
+    <div class="quiet">
+      <h3>How one goes off</h3>
+      <p class="voice">Reminders, before somebody improvises. The one holding the orb must be a caster with <strong>a first-level spell slot</strong> &mdash; the orb does not care which spells you know, only that magic answers you. Arming it takes <strong>one action of pure concentration per ten missiles</strong>: no movement, no bonus action, no reaction, nothing else, or the working fails. And the release must come the instant the count is done, or the whole cast collapses &mdash; though a spoiled cast does not spend the bomb. There are no fuses and no timers. A La Bomba goes off because somebody stood still in the middle of everything, long enough to finish. Decide who that is, and where they stand, before the moment finds you.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="voice">There is a rakshasa across the room and four mirrors that disagree with him, a courier asleep in his sleeve with your worst secret in it, a githzerai waiting for an answer, and a dead man four inches tall in the wall who has just been told he is dead.</p>
+    <div class="count">&asymp;30 hours remain</div>
+    <p class="fine">Compiled from what the party knows. If it is not on this board, you have not learned it yet.</p>
+  </footer>
+
+</div>
